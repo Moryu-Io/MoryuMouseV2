@@ -23,6 +23,7 @@
 #include "adc.h"
 #include "cordic.h"
 #include "dma.h"
+#include "fmac.h"
 #include "i2c.h"
 #include "opamp.h"
 #include "spi.h"
@@ -32,7 +33,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "wrapper_main.hpp"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -80,7 +81,18 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+  
+
+  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
+  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
+
+  NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
+
+  /* System interrupt init*/
+
+  /** Disable the internal Pull-Up in Dead Battery pins of UCPD peripheral 
+  */
+  LL_PWR_DisableDeadBatteryPD();
 
   /* USER CODE BEGIN Init */
 
@@ -110,18 +122,16 @@ int main(void)
   MX_TIM4_Init();
   MX_TIM16_Init();
   MX_USART3_UART_Init();
+  MX_FMAC_Init();
   /* USER CODE BEGIN 2 */
-  uint8_t _test = 0;
+  cpp_wrapper_main_setup();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  VL6180_init();
   while (1)
   {
-    HAL_Delay(100);
-    //_test = 100;
-    _test = ReadByte_VL6180X(0);
+    cpp_wrapper_main_loop();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -135,13 +145,15 @@ int main(void)
   */
 void SystemClock_Config(void)
 {
-  LL_FLASH_SetLatency(LL_FLASH_LATENCY_5);
+  LL_FLASH_SetLatency(LL_FLASH_LATENCY_8);
+  LL_PWR_EnableRange1BoostMode();
+  LL_RCC_HSE_Enable();
 
-   if(LL_FLASH_GetLatency() != LL_FLASH_LATENCY_5)
+   /* Wait till HSE is ready */
+  while(LL_RCC_HSE_IsReady() != 1)
   {
-    Error_Handler();  
+    
   }
-  LL_PWR_SetRegulVoltageScaling(LL_PWR_REGU_VOLTAGE_SCALE1);
   LL_RCC_HSI_Enable();
 
    /* Wait till HSI is ready */
@@ -150,8 +162,10 @@ void SystemClock_Config(void)
     
   }
   LL_RCC_HSI_SetCalibTrimming(64);
-  LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSI, LL_RCC_PLLM_DIV_5, 68, LL_RCC_PLLR_DIV_2);
+  LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSE, LL_RCC_PLLM_DIV_5, 68, LL_RCC_PLLR_DIV_2);
+  LL_RCC_PLL_ConfigDomain_ADC(LL_RCC_PLLSOURCE_HSE, LL_RCC_PLLM_DIV_5, 68, LL_RCC_PLLP_DIV_10);
   LL_RCC_PLL_EnableDomain_SYS();
+  LL_RCC_PLL_EnableDomain_ADC();
   LL_RCC_PLL_Enable();
 
    /* Wait till PLL is ready */
@@ -167,7 +181,7 @@ void SystemClock_Config(void)
   {
   
   }
-  /* Insure 1ï¿½ï¿½s transition state at intermediate medium speed clock based on DWT */
+  /* Insure 1ƒÊs transition state at intermediate medium speed clock based on DWT */
   CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
   DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
   DWT->CYCCNT = 0;
@@ -176,43 +190,19 @@ void SystemClock_Config(void)
   LL_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);
   LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_1);
   LL_RCC_SetAPB2Prescaler(LL_RCC_APB1_DIV_1);
-  LL_SetSystemCoreClock(108800000);
 
-   /* Update the time base */
-  if (HAL_InitTick (TICK_INT_PRIORITY) != HAL_OK)
-  {
-    Error_Handler();  
-  };
-  LL_RCC_SetUSARTClockSource(LL_RCC_USART3_CLKSOURCE_PCLK1);
+  LL_Init1msTick(170000000);
+
+  LL_SetSystemCoreClock(170000000);
+  LL_RCC_SetUSARTClockSource(LL_RCC_USART3_CLKSOURCE_HSI);
   LL_RCC_SetI2CClockSource(LL_RCC_I2C2_CLKSOURCE_PCLK1);
-  LL_RCC_SetADCClockSource(LL_RCC_ADC12_CLKSOURCE_SYSCLK);
-  LL_RCC_SetADCClockSource(LL_RCC_ADC345_CLKSOURCE_SYSCLK);
+  LL_RCC_SetADCClockSource(LL_RCC_ADC12_CLKSOURCE_PLL);
+  LL_RCC_SetADCClockSource(LL_RCC_ADC345_CLKSOURCE_PLL);
 }
 
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
-
- /**
-  * @brief  Period elapsed callback in non blocking mode
-  * @note   This function is called  when TIM15 interrupt took place, inside
-  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
-  * a global variable "uwTick" used as application time base.
-  * @param  htim : TIM handle
-  * @retval None
-  */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-  /* USER CODE BEGIN Callback 0 */
-
-  /* USER CODE END Callback 0 */
-  if (htim->Instance == TIM15) {
-    HAL_IncTick();
-  }
-  /* USER CODE BEGIN Callback 1 */
-
-  /* USER CODE END Callback 1 */
-}
 
 /**
   * @brief  This function is executed in case of error occurrence.

@@ -39,9 +39,9 @@ void MX_TIM1_Init(void)
   NVIC_SetPriority(TIM1_BRK_TIM15_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
   NVIC_EnableIRQ(TIM1_BRK_TIM15_IRQn);
 
-  TIM_InitStruct.Prescaler = 0;
+  TIM_InitStruct.Prescaler = 16999;
   TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
-  TIM_InitStruct.Autoreload = 0;
+  TIM_InitStruct.Autoreload = 10000;
   TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
   TIM_InitStruct.RepetitionCounter = 0;
   LL_TIM_Init(TIM1, &TIM_InitStruct);
@@ -57,7 +57,7 @@ void MX_TIM1_Init(void)
   TIM_OC_InitStruct.OCNIdleState = LL_TIM_OCIDLESTATE_LOW;
   LL_TIM_OC_Init(TIM1, LL_TIM_CHANNEL_CH3, &TIM_OC_InitStruct);
   LL_TIM_OC_DisableFast(TIM1, LL_TIM_CHANNEL_CH3);
-  TIM_InitStruct.Autoreload = 0;
+  TIM_InitStruct.Autoreload = 10000;
   LL_TIM_OC_EnablePreload(TIM1, LL_TIM_CHANNEL_CH4);
   TIM_OC_InitStruct.OCState = LL_TIM_OCSTATE_DISABLE;
   TIM_OC_InitStruct.OCNState = LL_TIM_OCSTATE_DISABLE;
@@ -117,9 +117,9 @@ void MX_TIM4_Init(void)
   /* Peripheral clock enable */
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM4);
 
-  TIM_InitStruct.Prescaler = 0;
+  TIM_InitStruct.Prescaler = 169;
   TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
-  TIM_InitStruct.Autoreload = 0;
+  TIM_InitStruct.Autoreload = 100;
   TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
   LL_TIM_Init(TIM4, &TIM_InitStruct);
   LL_TIM_DisableARRPreload(TIM4);
@@ -131,14 +131,14 @@ void MX_TIM4_Init(void)
   TIM_OC_InitStruct.OCPolarity = LL_TIM_OCPOLARITY_HIGH;
   LL_TIM_OC_Init(TIM4, LL_TIM_CHANNEL_CH1, &TIM_OC_InitStruct);
   LL_TIM_OC_DisableFast(TIM4, LL_TIM_CHANNEL_CH1);
-  TIM_InitStruct.Autoreload = 0;
+  TIM_InitStruct.Autoreload = 100;
   LL_TIM_OC_EnablePreload(TIM4, LL_TIM_CHANNEL_CH2);
   TIM_OC_InitStruct.OCState = LL_TIM_OCSTATE_DISABLE;
   TIM_OC_InitStruct.OCNState = LL_TIM_OCSTATE_DISABLE;
   TIM_OC_InitStruct.CompareValue = 0;
   LL_TIM_OC_Init(TIM4, LL_TIM_CHANNEL_CH2, &TIM_OC_InitStruct);
   LL_TIM_OC_DisableFast(TIM4, LL_TIM_CHANNEL_CH2);
-  TIM_InitStruct.Autoreload = 0;
+  TIM_InitStruct.Autoreload = 100;
   LL_TIM_OC_EnablePreload(TIM4, LL_TIM_CHANNEL_CH4);
   TIM_OC_InitStruct.OCState = LL_TIM_OCSTATE_DISABLE;
   TIM_OC_InitStruct.OCNState = LL_TIM_OCSTATE_DISABLE;

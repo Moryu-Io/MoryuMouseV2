@@ -77,7 +77,18 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+  
+
+  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
+  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
+
+  NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
+
+  /* System interrupt init*/
+
+  /** Disable the internal Pull-Up in Dead Battery pins of UCPD peripheral 
+  */
+  LL_PWR_DisableDeadBatteryPD();
 
   /* USER CODE BEGIN Init */
 
@@ -105,6 +116,7 @@ int main(void)
   MX_TIM8_Init();
   MX_CORDIC_Init();
   MX_TIM7_Init();
+  MX_TIM15_Init();
   /* USER CODE BEGIN 2 */
   cpp_wrapper_main_setup();
   
@@ -140,7 +152,9 @@ void SystemClock_Config(void)
   }
   LL_RCC_HSI_SetCalibTrimming(64);
   LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSI, LL_RCC_PLLM_DIV_4, 85, LL_RCC_PLLR_DIV_2);
+  LL_RCC_PLL_ConfigDomain_ADC(LL_RCC_PLLSOURCE_HSI, LL_RCC_PLLM_DIV_4, 85, LL_RCC_PLLP_DIV_7);
   LL_RCC_PLL_EnableDomain_SYS();
+  LL_RCC_PLL_EnableDomain_ADC();
   LL_RCC_PLL_Enable();
 
    /* Wait till PLL is ready */
@@ -165,40 +179,16 @@ void SystemClock_Config(void)
   LL_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);
   LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_1);
   LL_RCC_SetAPB2Prescaler(LL_RCC_APB1_DIV_1);
-  LL_SetSystemCoreClock(170000000);
 
-   /* Update the time base */
-  if (HAL_InitTick (TICK_INT_PRIORITY) != HAL_OK)
-  {
-    Error_Handler();  
-  };
-  LL_RCC_SetADCClockSource(LL_RCC_ADC12_CLKSOURCE_SYSCLK);
+  LL_Init1msTick(170000000);
+
+  LL_SetSystemCoreClock(170000000);
+  LL_RCC_SetADCClockSource(LL_RCC_ADC12_CLKSOURCE_PLL);
 }
 
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
-
- /**
-  * @brief  Period elapsed callback in non blocking mode
-  * @note   This function is called  when TIM15 interrupt took place, inside
-  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
-  * a global variable "uwTick" used as application time base.
-  * @param  htim : TIM handle
-  * @retval None
-  */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-  /* USER CODE BEGIN Callback 0 */
-
-  /* USER CODE END Callback 0 */
-  if (htim->Instance == TIM15) {
-    HAL_IncTick();
-  }
-  /* USER CODE BEGIN Callback 1 */
-
-  /* USER CODE END Callback 1 */
-}
 
 /**
   * @brief  This function is executed in case of error occurrence.

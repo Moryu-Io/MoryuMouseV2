@@ -23,6 +23,7 @@
 #include "stm32g4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "wrapper_interrupt.hpp"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -56,7 +57,6 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-extern TIM_HandleTypeDef htim15;
 
 /* USER CODE BEGIN EV */
 
@@ -233,10 +233,70 @@ void TIM1_BRK_TIM15_IRQHandler(void)
   /* USER CODE BEGIN TIM1_BRK_TIM15_IRQn 0 */
 
   /* USER CODE END TIM1_BRK_TIM15_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim15);
+  
   /* USER CODE BEGIN TIM1_BRK_TIM15_IRQn 1 */
 
   /* USER CODE END TIM1_BRK_TIM15_IRQn 1 */
+}
+
+/**
+  * @brief This function handles SPI1 global interrupt.
+  */
+void SPI1_IRQHandler(void)
+{
+  /* USER CODE BEGIN SPI1_IRQn 0 */
+  if(LL_SPI_IsActiveFlag_CRCERR(SPI1)||LL_SPI_IsActiveFlag_OVR(SPI1))
+  {
+    SPI1_ERROR_ITR();
+    LL_SPI_ClearFlag_CRCERR(SPI1);
+    LL_SPI_ClearFlag_OVR(SPI1);
+  }else if(LL_SPI_IsActiveFlag_MODF(SPI1)){
+    LL_SPI_ClearFlag_MODF(SPI1);
+  }
+  /* USER CODE END SPI1_IRQn 0 */
+  /* USER CODE BEGIN SPI1_IRQn 1 */
+
+  /* USER CODE END SPI1_IRQn 1 */
+}
+
+/**
+  * @brief This function handles DMA2 channel1 global interrupt.
+  */
+void DMA2_Channel1_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA2_Channel1_IRQn 0 */
+  if (LL_DMA_IsActiveFlag_TC1(DMA2))
+  {
+    SPI1_RX_DMA_TC();
+    LL_DMA_ClearFlag_GI1(DMA2);
+  }else if(LL_DMA_IsActiveFlag_HT1(DMA2)){
+    SPI1_RX_DMA_HT();
+    LL_DMA_ClearFlag_HT1(DMA2);
+  }
+  /* USER CODE END DMA2_Channel1_IRQn 0 */
+  
+  /* USER CODE BEGIN DMA2_Channel1_IRQn 1 */
+
+  /* USER CODE END DMA2_Channel1_IRQn 1 */
+}
+
+/**
+  * @brief This function handles DMA2 channel2 global interrupt.
+  */
+void DMA2_Channel2_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA2_Channel2_IRQn 0 */
+  // SPI1 TX DMA transfer completed
+  if (LL_DMA_IsActiveFlag_TC2(DMA2))
+  {
+    SPI1_TX_DMA_TC();
+    LL_DMA_ClearFlag_GI2(DMA2);
+  }
+  /* USER CODE END DMA2_Channel2_IRQn 0 */
+  
+  /* USER CODE BEGIN DMA2_Channel2_IRQn 1 */
+
+  /* USER CODE END DMA2_Channel2_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

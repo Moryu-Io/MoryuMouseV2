@@ -35,19 +35,11 @@ void MX_TIM1_Init(void)
   /* Peripheral clock enable */
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM1);
 
-  /* TIM1 interrupt Init */
-  NVIC_SetPriority(TIM1_BRK_TIM15_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
-  NVIC_EnableIRQ(TIM1_BRK_TIM15_IRQn);
-  NVIC_SetPriority(TIM1_UP_TIM16_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
-  NVIC_EnableIRQ(TIM1_UP_TIM16_IRQn);
-  NVIC_SetPriority(TIM1_TRG_COM_TIM17_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
-  NVIC_EnableIRQ(TIM1_TRG_COM_TIM17_IRQn);
-
-  TIM_InitStruct.Prescaler = 2;
-  TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
+  TIM_InitStruct.Prescaler = 1;
+  TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_CENTER_UP;
   TIM_InitStruct.Autoreload = 1000;
   TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
-  TIM_InitStruct.RepetitionCounter = 0;
+  TIM_InitStruct.RepetitionCounter = 1;
   LL_TIM_Init(TIM1, &TIM_InitStruct);
   LL_TIM_DisableARRPreload(TIM1);
   LL_TIM_OC_EnablePreload(TIM1, LL_TIM_CHANNEL_CH1);
@@ -55,7 +47,7 @@ void MX_TIM1_Init(void)
   TIM_OC_InitStruct.OCState = LL_TIM_OCSTATE_DISABLE;
   TIM_OC_InitStruct.OCNState = LL_TIM_OCSTATE_DISABLE;
   TIM_OC_InitStruct.CompareValue = 0;
-  TIM_OC_InitStruct.OCPolarity = LL_TIM_OCPOLARITY_HIGH;
+  TIM_OC_InitStruct.OCPolarity = LL_TIM_OCPOLARITY_LOW;
   TIM_OC_InitStruct.OCNPolarity = LL_TIM_OCPOLARITY_HIGH;
   TIM_OC_InitStruct.OCIdleState = LL_TIM_OCIDLESTATE_LOW;
   TIM_OC_InitStruct.OCNIdleState = LL_TIM_OCIDLESTATE_LOW;
@@ -86,7 +78,7 @@ void MX_TIM1_Init(void)
   LL_TIM_SetOCRefClearInputSource(TIM1, LL_TIM_OCREF_CLR_INT_COMP1);
   LL_TIM_DisableExternalClock(TIM1);
   LL_TIM_ConfigETR(TIM1, LL_TIM_ETR_POLARITY_NONINVERTED, LL_TIM_ETR_PRESCALER_DIV1, LL_TIM_ETR_FILTER_FDIV1);
-  LL_TIM_SetTriggerOutput(TIM1, LL_TIM_TRGO_RESET);
+  LL_TIM_SetTriggerOutput(TIM1, LL_TIM_TRGO_UPDATE);
   LL_TIM_SetTriggerOutput2(TIM1, LL_TIM_TRGO2_RESET);
   LL_TIM_DisableMasterSlaveMode(TIM1);
   TIM_BDTRInitStruct.OSSRState = LL_TIM_OSSR_DISABLE;
@@ -180,7 +172,7 @@ void MX_TIM2_Init(void)
   TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
   LL_TIM_Init(TIM2, &TIM_InitStruct);
   LL_TIM_DisableARRPreload(TIM2);
-  LL_TIM_SetEncoderMode(TIM2, LL_TIM_ENCODERMODE_X2_TI1);
+  LL_TIM_SetEncoderMode(TIM2, LL_TIM_ENCODERMODE_X4_TI12);
   LL_TIM_IC_SetActiveInput(TIM2, LL_TIM_CHANNEL_CH1, LL_TIM_ACTIVEINPUT_DIRECTTI);
   LL_TIM_IC_SetPrescaler(TIM2, LL_TIM_CHANNEL_CH1, LL_TIM_ICPSC_DIV1);
   LL_TIM_IC_SetFilter(TIM2, LL_TIM_CHANNEL_CH1, LL_TIM_IC_FILTER_FDIV1);
@@ -215,9 +207,9 @@ void MX_TIM3_Init(void)
   GPIO_InitStruct.Alternate = LL_GPIO_AF_10;
   LL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  TIM_InitStruct.Prescaler = 0;
+  TIM_InitStruct.Prescaler = 169;
   TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
-  TIM_InitStruct.Autoreload = 0;
+  TIM_InitStruct.Autoreload = 100;
   TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
   LL_TIM_Init(TIM3, &TIM_InitStruct);
   LL_TIM_DisableARRPreload(TIM3);
@@ -238,7 +230,7 @@ void MX_TIM7_Init(void)
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM7);
 
   /* TIM7 interrupt Init */
-  NVIC_SetPriority(TIM7_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
+  NVIC_SetPriority(TIM7_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),8, 0));
   NVIC_EnableIRQ(TIM7_IRQn);
 
   TIM_InitStruct.Prescaler = 1699;
@@ -289,7 +281,7 @@ void MX_TIM8_Init(void)
   TIM_InitStruct.RepetitionCounter = 0;
   LL_TIM_Init(TIM8, &TIM_InitStruct);
   LL_TIM_DisableARRPreload(TIM8);
-  LL_TIM_SetEncoderMode(TIM8, LL_TIM_ENCODERMODE_X2_TI1);
+  LL_TIM_SetEncoderMode(TIM8, LL_TIM_ENCODERMODE_X4_TI12);
   LL_TIM_IC_SetActiveInput(TIM8, LL_TIM_CHANNEL_CH1, LL_TIM_ACTIVEINPUT_DIRECTTI);
   LL_TIM_IC_SetPrescaler(TIM8, LL_TIM_CHANNEL_CH1, LL_TIM_ICPSC_DIV1);
   LL_TIM_IC_SetFilter(TIM8, LL_TIM_CHANNEL_CH1, LL_TIM_IC_FILTER_FDIV1);
@@ -304,6 +296,26 @@ void MX_TIM8_Init(void)
   TIM_BDTRInitStruct.BreakAFMode = LL_TIM_BREAK_AFMODE_INPUT;
   TIM_BDTRInitStruct.Break2AFMode = LL_TIM_BREAK_AFMODE_INPUT;
   LL_TIM_BDTR_Init(TIM8, &TIM_BDTRInitStruct);
+
+}
+/* TIM15 init function */
+void MX_TIM15_Init(void)
+{
+  LL_TIM_InitTypeDef TIM_InitStruct = {0};
+
+  /* Peripheral clock enable */
+  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM15);
+
+  TIM_InitStruct.Prescaler = 169;
+  TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
+  TIM_InitStruct.Autoreload = 0;
+  TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
+  TIM_InitStruct.RepetitionCounter = 0;
+  LL_TIM_Init(TIM15, &TIM_InitStruct);
+  LL_TIM_DisableARRPreload(TIM15);
+  LL_TIM_SetClockSource(TIM15, LL_TIM_CLOCKSOURCE_INTERNAL);
+  LL_TIM_SetTriggerOutput(TIM15, LL_TIM_TRGO_RESET);
+  LL_TIM_DisableMasterSlaveMode(TIM15);
 
 }
 

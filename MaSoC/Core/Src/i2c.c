@@ -62,7 +62,7 @@ void MX_I2C2_Init(void)
 
   LL_DMA_SetDataTransferDirection(DMA1, LL_DMA_CHANNEL_1, LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
 
-  LL_DMA_SetChannelPriorityLevel(DMA1, LL_DMA_CHANNEL_1, LL_DMA_PRIORITY_LOW);
+  LL_DMA_SetChannelPriorityLevel(DMA1, LL_DMA_CHANNEL_1, LL_DMA_PRIORITY_MEDIUM);
 
   LL_DMA_SetMode(DMA1, LL_DMA_CHANNEL_1, LL_DMA_MODE_NORMAL);
 
@@ -79,7 +79,7 @@ void MX_I2C2_Init(void)
 
   LL_DMA_SetDataTransferDirection(DMA1, LL_DMA_CHANNEL_2, LL_DMA_DIRECTION_MEMORY_TO_PERIPH);
 
-  LL_DMA_SetChannelPriorityLevel(DMA1, LL_DMA_CHANNEL_2, LL_DMA_PRIORITY_LOW);
+  LL_DMA_SetChannelPriorityLevel(DMA1, LL_DMA_CHANNEL_2, LL_DMA_PRIORITY_MEDIUM);
 
   LL_DMA_SetMode(DMA1, LL_DMA_CHANNEL_2, LL_DMA_MODE_NORMAL);
 
@@ -94,7 +94,7 @@ void MX_I2C2_Init(void)
   /** I2C Initialization 
   */
   I2C_InitStruct.PeripheralMode = LL_I2C_MODE_I2C;
-  I2C_InitStruct.Timing = 0x00A039C6;
+  I2C_InitStruct.Timing = 0x10802D9B;
   I2C_InitStruct.AnalogFilter = LL_I2C_ANALOGFILTER_ENABLE;
   I2C_InitStruct.DigitalFilter = 0;
   I2C_InitStruct.OwnAddress1 = 0;
@@ -155,7 +155,7 @@ void I2C_DMA_Writes(uint8_t _slaveaddr, uint8_t* _dataaddr, uint32_t _datanum){
 	LL_I2C_EnableDMAReq_TX(I2C2);
 	LL_DMA_EnableStream(DMA1, LL_DMA_CHANNEL_2);
 
-	//?ÔøΩÔøΩ?ÔøΩÔøΩ?ÔøΩÔøΩ?ÔøΩÔøΩ?ÔøΩÔøΩ?ÔøΩÔøΩ?ÔøΩÔøΩÁâ∫?ÔøΩÔøΩÕäÔøΩ?ÔøΩÔøΩ?ÔøΩÔøΩ?ÔøΩÔøΩ?ÔøΩÔøΩ?ÔøΩÔøΩËçûÔøΩ›Ç…ÇÔøΩ?ÔøΩÔøΩ◊ÇÔøΩ
+	//???øΩ?øΩ??øΩ?øΩ???øΩ?øΩ??øΩ?øΩ???øΩ?øΩ??øΩ?øΩ???øΩ?øΩ??øΩ?øΩ???øΩ?øΩ??øΩ?øΩ???øΩ?øΩ??øΩ?øΩ???øΩ?øΩ??øΩ?øΩÁâ∫???øΩ?øΩ??øΩ?øΩÕäÔøΩ???øΩ?øΩ??øΩ?øΩ???øΩ?øΩ??øΩ?øΩ???øΩ?øΩ??øΩ?øΩ???øΩ?øΩ??øΩ?øΩ???øΩ?øΩ??øΩ?øΩËçûÔøΩ›Ç…ÇÔøΩ???øΩ?øΩ??øΩ?øΩ◊ÇÔøΩ
 
 	while(!LL_DMA_IsActiveFlag_TC2(DMA1));
 	// I2C_EVENT_MASTER_BYTE_TRANSMITTED
@@ -187,8 +187,8 @@ void I2C_Reads(uint8_t _slaveaddr, uint16_t _index, uint8_t* _dataaddr, uint32_t
   
   for(int i=0;i<_datanum;i++){
     while(!LL_I2C_IsActiveFlag_RXNE(I2C2));
-		*_dataaddr = LL_I2C_ReceiveData8(I2C2);
-    _dataaddr++;
+		//*_dataaddr = LL_I2C_ReceiveData8(I2C2);
+    //_dataaddr++;
   }
 
   while(!LL_I2C_IsActiveFlag_STOP(I2C2));
@@ -268,9 +268,9 @@ void VL6180_init(){
   LL_I2C_Enable(I2C2);
 	LL_DMA_SetPeriphAddress(DMA1,LL_DMA_CHANNEL_2, (uint32_t)(&(I2C2->TXDR)));
   	//LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_13);
-    HAL_Delay(100);
+    LL_mDelay(100);
     	LL_GPIO_SetOutputPin(GPIOB, LL_GPIO_PIN_13);		//VL6180X on
-      HAL_Delay(100);
+      LL_mDelay(100);
 }
 
 void WriteByte_VL6180X(uint16_t _index, uint8_t _d){
