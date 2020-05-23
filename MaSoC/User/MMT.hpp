@@ -31,6 +31,8 @@ public:
 	void tx_cplt_routine();
 	void error_handler();
 
+	MMT_Mode get_nowMode(){ return nowMode_; };
+
 private:
 	MMT_M(){}
 	MMT_M(const MMT_M &other);

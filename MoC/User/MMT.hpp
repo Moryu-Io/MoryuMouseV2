@@ -30,6 +30,10 @@ public:
 	void tx_cplt_routine();
 	void error_handler();
 
+	MMT_Mode get_nowMode(){ return nowMode_; };
+
+	bool is_rx_cplt = false;
+
 private:
 	MMT_S(){}
 	MMT_S(const MMT_S &other);

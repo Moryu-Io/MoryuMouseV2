@@ -133,18 +133,22 @@ void MMT_M::rx_cplt_routine(){
 	switch(nowMode_){
 	case Single:
 		if(_single_rx_buf[0] == MMT_SLAVE_WHO_AM_I){
-			init(OpenMemory);
+			nowMode_ = OpenMemory;
+			//init(OpenMemory);
 		}else{
-			init(Single);
+			nowMode_ = Single;
+			//init(Single);
 		}
 		break;
 	case OpenMemory:
 		if((ptr_moc_OpenMemory_->memory0.header == MMT_MOC_HEADER) 
 			&&(ptr_moc_OpenMemory_->memory0.footer == MMT_MOC_FOOTER)){
 			// 二面バッファ切り替え
-			init(OpenMemory);
+			nowMode_ = OpenMemory;
+			//init(OpenMemory);
 			//ptr_moc_OpenMemory_->set_oMem_to_memory1();
 		}else{
+			nowMode_ = Single;
 			init(Single);
 		}
 		break;

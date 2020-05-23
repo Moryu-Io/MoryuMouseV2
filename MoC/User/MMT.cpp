@@ -104,6 +104,11 @@ void MMT_S::rx_halfcplt_routine(){
 void MMT_S::rx_cplt_routine(){
 	// Slaveでは必要ない
 	// deselect();
+			LL_DMA_DisableChannel(DMAx_, tx_DMA_CH_);
+		LL_DMA_DisableChannel(DMAx_, rx_DMA_CH_);
+		LL_SPI_Disable(SPIx_);
+		LL_SPI_DisableDMAReq_RX(SPIx_);
+		LL_SPI_DisableDMAReq_TX(SPIx_);
 	
 	switch(nowMode_){
 	case Single:
@@ -114,9 +119,11 @@ void MMT_S::rx_cplt_routine(){
 		LL_SPI_DisableDMAReq_TX(SPIx_);
 
 		if(_single_rx_buf[0] == MMT_MASTER_WHO_AM_I){
-			init(OpenMemory);
+			//init(OpenMemory);
+			nowMode_ = OpenMemory;
 		}else{
-			init(Single);
+			//init(Single);
+			nowMode_ = Single;
 		}
 		break;
 	case OpenMemory:
@@ -125,14 +132,17 @@ void MMT_S::rx_cplt_routine(){
 			// 二面バッファ切り替え
 			//get_ptr_MaSoC_OpenMemory()->set_oMem_to_memory1();
 			// DMA RX リクエストを有効化
-			init(OpenMemory);
+			//init(OpenMemory);
+			nowMode_ = OpenMemory;
 		}else{
-			init(Single);
+			//init(Single);
+			nowMode_ = Single;
 		}
 		break;
 	default:
 		break;
 	}
+	is_rx_cplt = true;
 }
 
 void MMT_S::tx_cplt_routine(){

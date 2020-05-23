@@ -31,7 +31,7 @@ void cpp_wrapper_main_setup(void){
     LL_mDelay(100);
     //imu.getwhoamI();
 
-    MMT_S &mmt = MMT_S::getInstance();
+    static MMT_S &mmt = MMT_S::getInstance();
     mmt.set_periph(SPI1, GPIOA, LL_GPIO_PIN_4,
                    DMA2, LL_DMA_CHANNEL_1, LL_DMA_CHANNEL_2);
     mmt.init(MMT_S::Single);
@@ -56,12 +56,16 @@ void cpp_wrapper_main_loop(void){
     static uint32_t r_enc = 0;
     
     counter++;
-    MMT_S &mmt = MMT_S::getInstance();
+    static MMT_S &mmt = MMT_S::getInstance();
     LL_mDelay(1000);
     r_enc = RightEncoder.get_nowCNT();
     l_enc = LeftEncoder.get_nowCNT();
     ADC_TypeDef* _adc = ADC1;
     
+    if(mmt.is_rx_cplt == true){
+        mmt.is_rx_cplt = false;
+        mmt.init(mmt.get_nowMode());
+    }
     get_ptr_MoC_OpenMemory()->ptr_now_oMem->isThisMemoryLocked = counter;
     //mmt.set_single_TXdata(counter);
     

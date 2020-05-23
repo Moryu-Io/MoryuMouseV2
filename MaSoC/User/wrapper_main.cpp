@@ -27,6 +27,7 @@ void cpp_wrapper_main_loop(void){
         counter++;
         get_ptr_MaSoC_OpenMemory()->ptr_now_oMem->isThisMemoryLocked = counter;
         MMT_M &mmt = MMT_M::getInstance();
+        mmt.init(mmt.get_nowMode());
         mmt.enable_transfer();
         LL_mDelay(1000);
         TIM1->CCR4 = 0;
