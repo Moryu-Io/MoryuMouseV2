@@ -95,10 +95,10 @@ void MMT_M::enable_transfer(){
 
 	// DMA TX リクエストを有効化
 	LL_SPI_EnableDMAReq_TX(SPIx_);
-
+	select();
 	LL_SPI_Enable(SPIx_);
 
-	select();
+
 }
 
 void MMT_M::set_single_TXdata(uint8_t _txd){
@@ -149,7 +149,7 @@ void MMT_M::rx_cplt_routine(){
 			//ptr_moc_OpenMemory_->set_oMem_to_memory1();
 		}else{
 			nowMode_ = Single;
-			init(Single);
+			//init(Single);
 		}
 		break;
 	default:

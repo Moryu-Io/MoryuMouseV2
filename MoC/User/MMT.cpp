@@ -104,7 +104,7 @@ void MMT_S::rx_halfcplt_routine(){
 void MMT_S::rx_cplt_routine(){
 	// Slaveでは必要ない
 	// deselect();
-			LL_DMA_DisableChannel(DMAx_, tx_DMA_CH_);
+		LL_DMA_DisableChannel(DMAx_, tx_DMA_CH_);
 		LL_DMA_DisableChannel(DMAx_, rx_DMA_CH_);
 		LL_SPI_Disable(SPIx_);
 		LL_SPI_DisableDMAReq_RX(SPIx_);
@@ -112,12 +112,6 @@ void MMT_S::rx_cplt_routine(){
 	
 	switch(nowMode_){
 	case Single:
-		LL_DMA_DisableChannel(DMAx_, tx_DMA_CH_);
-		LL_DMA_DisableChannel(DMAx_, rx_DMA_CH_);
-		LL_SPI_Disable(SPIx_);
-		LL_SPI_DisableDMAReq_RX(SPIx_);
-		LL_SPI_DisableDMAReq_TX(SPIx_);
-
 		if(_single_rx_buf[0] == MMT_MASTER_WHO_AM_I){
 			//init(OpenMemory);
 			nowMode_ = OpenMemory;
