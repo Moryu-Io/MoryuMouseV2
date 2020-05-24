@@ -11,24 +11,25 @@ void MMT_M::set_periph(SPI_TypeDef *_spix, GPIO_TypeDef* _csGPIO, uint32_t _csPi
 	DMAx_ = _dmax;
 	rx_DMA_CH_ = _rx_dma_ch;
 	tx_DMA_CH_ = _tx_dma_ch;
+	
+	ptr_moc_OpenMemory_ = get_ptr_MoC_OpenMemory();
+    ptr_masoc_OpenMemory_ = get_ptr_MaSoC_OpenMemory();
 }
 
 void MMT_M::init(MMT_Mode _m){
 	nowMode_ = _m;
-	ptr_moc_OpenMemory_ = get_ptr_MoC_OpenMemory();
-    ptr_masoc_OpenMemory_ = get_ptr_MaSoC_OpenMemory();
 
 	switch (_m)
 	{
 	case OpenMemory:
 		// MaSoCの場合、MoCのメモリーを受信
 		LL_DMA_ConfigAddresses(DMAx_, rx_DMA_CH_,
-							   LL_SPI_DMA_GetRegAddr(SPIx_),(uint32_t)(this->ptr_moc_OpenMemory_),
+							   LL_SPI_DMA_GetRegAddr(SPIx_),(uint32_t)(this->ptr_moc_OpenMemory_->ptr_now_oMem),
 							   LL_DMA_GetDataTransferDirection(DMAx_, rx_DMA_CH_));
 		LL_DMA_SetDataLength(DMAx_, rx_DMA_CH_, ((this->ptr_moc_OpenMemory_->memory_byte_size)>>1));	
 
 		LL_DMA_ConfigAddresses(DMAx_, tx_DMA_CH_, 
-							(uint32_t)(this->ptr_masoc_OpenMemory_),LL_SPI_DMA_GetRegAddr(SPIx_),
+							(uint32_t)(this->ptr_masoc_OpenMemory_->ptr_now_oMem),LL_SPI_DMA_GetRegAddr(SPIx_),
 							LL_DMA_GetDataTransferDirection(DMAx_, tx_DMA_CH_));
 		LL_DMA_SetDataLength(DMAx_, tx_DMA_CH_, (this->ptr_masoc_OpenMemory_->memory_byte_size)>>1);
 		break;
@@ -49,42 +50,18 @@ void MMT_M::init(MMT_Mode _m){
 		break;
 	}
 
-	if(SPIx_ == SPI1){
-		LL_DMA_SetPeriphRequest(DMAx_, rx_DMA_CH_, LL_DMAMUX_REQ_SPI1_RX);
-		LL_DMA_SetPeriphRequest(DMAx_, tx_DMA_CH_, LL_DMAMUX_REQ_SPI1_TX);
-	}else if(SPIx_ == SPI2){
-		LL_DMA_SetPeriphRequest(DMAx_, rx_DMA_CH_, LL_DMAMUX_REQ_SPI2_RX);
-		LL_DMA_SetPeriphRequest(DMAx_, tx_DMA_CH_, LL_DMAMUX_REQ_SPI2_TX);
-	}else if(SPIx_ == SPI3){
-		LL_DMA_SetPeriphRequest(DMAx_, rx_DMA_CH_, LL_DMAMUX_REQ_SPI3_RX);
-		LL_DMA_SetPeriphRequest(DMAx_, tx_DMA_CH_, LL_DMAMUX_REQ_SPI3_TX);		
-	}
-
 	//enable_transfer();
-
 }
 
 
 
 void MMT_M::enable_transfer(){
-	switch (nowMode_)
-	{
-	case Single:	 LL_DMA_DisableIT_HT(DMAx_, rx_DMA_CH_);		break;
-	case OpenMemory: LL_DMA_EnableIT_HT(DMAx_, rx_DMA_CH_);			break;
-	default:														break;
-	}
-	
 	LL_DMA_EnableIT_TC(DMAx_, rx_DMA_CH_);
 	LL_DMA_EnableIT_TE(DMAx_, rx_DMA_CH_);
     LL_DMA_EnableIT_TC(DMAx_, tx_DMA_CH_);
 	LL_DMA_EnableIT_TE(DMAx_, tx_DMA_CH_);
 
 	LL_SPI_EnableIT_ERR(SPIx_);
-
-	LL_SPI_SetDMAParity_TX(SPIx_, LL_SPI_DMA_PARITY_EVEN);
-	LL_SPI_SetDMAParity_RX(SPIx_, LL_SPI_DMA_PARITY_EVEN);
-
-    LL_SPI_SetRxFIFOThreshold(SPIx_, LL_SPI_RX_FIFO_TH_HALF);
 
 	// DMA RX リクエストを有効化
 	LL_SPI_EnableDMAReq_RX(SPIx_);
@@ -98,7 +75,6 @@ void MMT_M::enable_transfer(){
 	select();
 	LL_SPI_Enable(SPIx_);
 
-
 }
 
 void MMT_M::set_single_TXdata(uint8_t _txd){
@@ -106,18 +82,9 @@ void MMT_M::set_single_TXdata(uint8_t _txd){
 
 	select();
 
-
 	// DMA TX リクエストを有効化
 	//LL_SPI_EnableDMAReq_TX(SPIx_);
 	LL_DMA_EnableChannel(DMAx_, tx_DMA_CH_);
-}
-
-void MMT_M::rx_halfcplt_routine(){
-	if((ptr_moc_OpenMemory_->memory0.header == MMT_MOC_HEADER) 
-		&&(ptr_moc_OpenMemory_->memory0.footer == MMT_MOC_FOOTER)){
-		// 二面バッファ切り替え
-		//ptr_moc_OpenMemory_->set_oMem_to_memory0();
-	}
 }
 
 void MMT_M::rx_cplt_routine(){
@@ -133,23 +100,23 @@ void MMT_M::rx_cplt_routine(){
 	switch(nowMode_){
 	case Single:
 		if(_single_rx_buf[0] == MMT_SLAVE_WHO_AM_I){
-			nowMode_ = OpenMemory;
-			//init(OpenMemory);
+			init(OpenMemory);
 		}else{
-			nowMode_ = Single;
-			//init(Single);
+			init(Single);
 		}
 		break;
 	case OpenMemory:
-		if((ptr_moc_OpenMemory_->memory0.header == MMT_MOC_HEADER) 
-			&&(ptr_moc_OpenMemory_->memory0.footer == MMT_MOC_FOOTER)){
+		if((ptr_moc_OpenMemory_->ptr_now_oMem->header == MMT_MOC_HEADER) 
+			&&(ptr_moc_OpenMemory_->ptr_now_oMem->footer == MMT_MOC_FOOTER)){
 			// 二面バッファ切り替え
-			nowMode_ = OpenMemory;
-			//init(OpenMemory);
-			//ptr_moc_OpenMemory_->set_oMem_to_memory1();
+			if(ptr_moc_OpenMemory_->ptr_now_oMem == &(ptr_moc_OpenMemory_->memory0)){
+				ptr_moc_OpenMemory_->set_oMem_to_memory1();
+			}else{
+				ptr_moc_OpenMemory_->set_oMem_to_memory0();
+			}
+			init(OpenMemory);
 		}else{
-			nowMode_ = Single;
-			//init(Single);
+			init(Single);
 		}
 		break;
 	default:

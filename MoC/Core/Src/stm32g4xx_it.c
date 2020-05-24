@@ -276,12 +276,8 @@ void DMA2_Channel1_IRQHandler(void)
   // SPI1 RX DMA transfer completed
   if (LL_DMA_IsActiveFlag_TC1(DMA2))
   {
-    
     LL_DMA_ClearFlag_GI1(DMA2);
     SPI1_RX_DMA_TC();
-  }else if(LL_DMA_IsActiveFlag_HT1(DMA2)){
-    SPI1_RX_DMA_HT();
-    LL_DMA_ClearFlag_HT1(DMA2);
   }
   /* USER CODE END DMA2_Channel1_IRQn 0 */
   
@@ -299,8 +295,8 @@ void DMA2_Channel2_IRQHandler(void)
   // SPI1 TX DMA transfer completed
   if (LL_DMA_IsActiveFlag_TC2(DMA2))
   {
-    SPI1_TX_DMA_TC();
     LL_DMA_ClearFlag_GI2(DMA2);
+    SPI1_TX_DMA_TC();
   }
   /* USER CODE END DMA2_Channel2_IRQn 0 */
   

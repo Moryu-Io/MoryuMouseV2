@@ -26,10 +26,6 @@ uint8_t is_SPI3_TX_DMA_TC(){
 }
 
 
-void SPI1_RX_DMA_HT(){
-    MMT_S &mmt = MMT_S::getInstance();
-    mmt.rx_halfcplt_routine();
-}
 void SPI1_RX_DMA_TC(){
     MMT_S &mmt = MMT_S::getInstance();
     mmt.rx_cplt_routine();

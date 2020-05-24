@@ -26,7 +26,6 @@ public:
 
 	void set_single_TXdata(uint8_t);
 
-	void rx_halfcplt_routine();
 	void rx_cplt_routine();
 	void tx_cplt_routine();
 	void error_handler();
@@ -56,8 +55,6 @@ private:
 	MoC_OpenMemory* ptr_moc_OpenMemory_;
 	MaSoC_OpenMemory* ptr_masoc_OpenMemory_;
 
-	DMA_Channel_TypeDef *dma_rx_ch_def = DMA2_Channel1;
-	DMA_Channel_TypeDef *dma_tx_ch_def = DMA2_Channel2;
 };
 
 

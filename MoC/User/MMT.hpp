@@ -22,10 +22,10 @@ public:
 	void set_periph(SPI_TypeDef *_spix, GPIO_TypeDef* _csGPIO, uint32_t _csPinmsk,
 					DMA_TypeDef *_dmax, uint32_t _rx_dma_ch, uint32_t _tx_dma_ch);
     void init(MMT_Mode _m);
+	void enable_transfer();
 
 	void set_single_TXdata(uint8_t);
 
-	void rx_halfcplt_routine();
 	void rx_cplt_routine();
 	void tx_cplt_routine();
 	void error_handler();
@@ -57,8 +57,8 @@ private:
 	MoC_OpenMemory* ptr_moc_OpenMemory_;
 	MaSoC_OpenMemory* ptr_masoc_OpenMemory_;
 
-	DMA_Channel_TypeDef *dma_rx_ch_def = DMA2_Channel1;
-	DMA_Channel_TypeDef *dma_tx_ch_def = DMA2_Channel2;
+	
+
 };
 
 

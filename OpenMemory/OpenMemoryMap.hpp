@@ -29,19 +29,29 @@ struct MoC_OpenMemory{
 struct MaSoC_OpenMemory{
     MaSoC_OpenMemoryMap memory0;
     MaSoC_OpenMemoryMap memory1;
-    MaSoC_OpenMemoryMap* ptr_now_oMem = &memory0;
+    MaSoC_OpenMemoryMap* ptr_now_oMem = &memory0;       // oMemは他マイコンとやり取りするメモリ
+    MaSoC_OpenMemoryMap* ptr_now_rMem = &memory1;       // rMemはマイコン内で読めるメモリ
     uint32_t memory_byte_size = sizeof(MaSoC_OpenMemoryMap);
-    void set_oMem_to_memory0(){ ptr_now_oMem = &memory0; };
-    void set_oMem_to_memory1(){ ptr_now_oMem = &memory1; };
+    void set_oMem_to_memory0(){ 
+        ptr_now_oMem = &memory0;
+        ptr_now_rMem = &memory1; };
+    void set_oMem_to_memory1(){
+        ptr_now_oMem = &memory1;
+        ptr_now_rMem = &memory0; };
 };
 #else
 struct MoC_OpenMemory{
     MoC_OpenMemoryMap memory0;
     MoC_OpenMemoryMap memory1;
-    MoC_OpenMemoryMap* ptr_now_oMem = &memory0;
+    MoC_OpenMemoryMap* ptr_now_oMem = &memory0;       // oMemは他マイコンとやり取りするメモリ
+    MoC_OpenMemoryMap* ptr_now_rMem = &memory1;       // rMemはマイコン内で読めるメモリ
     uint32_t memory_byte_size = sizeof(MoC_OpenMemoryMap);
-    void set_oMem_to_memory0(){ ptr_now_oMem = &memory0; };
-    void set_oMem_to_memory1(){ ptr_now_oMem = &memory1; };
+    void set_oMem_to_memory0(){ 
+        ptr_now_oMem = &memory0;
+        ptr_now_rMem = &memory1; };
+    void set_oMem_to_memory1(){
+        ptr_now_oMem = &memory1;
+        ptr_now_rMem = &memory0; };
 };
 struct MaSoC_OpenMemory{
     MaSoC_OpenMemoryMap memory0;

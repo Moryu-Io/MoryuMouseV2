@@ -8,7 +8,6 @@ extern "C" {
 
 #include "stm32g4xx.h"
 
-void SPI1_RX_DMA_HT();
 void SPI1_RX_DMA_TC();
 void SPI1_TX_DMA_TC();
 void SPI1_ERROR_ITR();

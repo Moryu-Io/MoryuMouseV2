@@ -62,10 +62,6 @@ void cpp_wrapper_main_loop(void){
     l_enc = LeftEncoder.get_nowCNT();
     ADC_TypeDef* _adc = ADC1;
     
-    if(mmt.is_rx_cplt == true){
-        mmt.is_rx_cplt = false;
-        mmt.init(mmt.get_nowMode());
-    }
     get_ptr_MoC_OpenMemory()->ptr_now_oMem->isThisMemoryLocked = counter;
     //mmt.set_single_TXdata(counter);
     

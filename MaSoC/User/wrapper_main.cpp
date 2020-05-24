@@ -22,13 +22,14 @@ void cpp_wrapper_main_setup(void){
 void cpp_wrapper_main_loop(void){
     static uint8_t counter = 0;
     TIM1->CCR3 = 5000;
+    LL_mDelay(1);
+    MMT_M &mmt = MMT_M::getInstance();
+    mmt.enable_transfer();
     if(LL_GPIO_IsInputPinSet(GPIOC, LL_GPIO_PIN_13) == 1){
         TIM1->CCR4 = 5000;
         counter++;
         get_ptr_MaSoC_OpenMemory()->ptr_now_oMem->isThisMemoryLocked = counter;
-        MMT_M &mmt = MMT_M::getInstance();
-        mmt.init(mmt.get_nowMode());
-        mmt.enable_transfer();
+
         LL_mDelay(1000);
         TIM1->CCR4 = 0;
     }
