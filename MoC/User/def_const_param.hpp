@@ -4,6 +4,16 @@
 
 #define MOC_MICON
 
+/* 車体のパラメータ */
+#define RIGHT_WHEEL_DIAMETER_mm (13.8f)
+#define LEFT_WHEEL_DIAMETER_mm  (13.8f)
+
+#define MACHINE_TREAD_mm        (18.0f)
+#define MOTOR_REDUCTION_RATIO   (40.0f/13.0f)
+
+#define CONTROLL_FREQ   (10000.0f)
+
+/* MMT関連 */
 #define MMT_MASTER_WHO_AM_I (0x69A9)
 #define MMT_SLAVE_WHO_AM_I (0x69BA)
 

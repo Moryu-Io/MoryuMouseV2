@@ -37,11 +37,16 @@ public:
 		{ 		};
 
 	void getIMUdata(IMUdata* _imudata);
+	bool is_imudata_updated(){ return is_IMUdata_Updated; };
 
-	void routine_config();
+	void routine_config_for_get_IMUdata();
 
 	void getwhoamI();
 	void init_config();
+
+	void dma_config();
+	void rx_dma_TC();
+	void tx_dma_TC();
 
 private:
 	SPI_TypeDef *SPIx_;
@@ -50,6 +55,8 @@ private:
 	DMA_TypeDef* DMAx_;
 	uint32_t rx_DMA_CH_;
 	uint32_t tx_DMA_CH_;
+	bool is_rxDMA_completed = false;
+	bool is_txDMA_completed = false;
 
 	uint8_t rxbuffer_[16] = {};
 	uint8_t txbuffer_[16] = {};
@@ -64,11 +71,14 @@ private:
 	void select(){LL_GPIO_ResetOutputPin(csGPIOx_, csPinmsk_);}
 	void deselect(){LL_GPIO_SetOutputPin(csGPIOx_, csPinmsk_);}
 
-	void dma_config();
-	virtual bool is_rx_dma_TC();
-	virtual bool is_tx_dma_TC();
+	bool is_IMUdata_Updated = false;
+	bool is_IMUdata_Routine = false;
 
 };
+
+
+
+IMU* get_ptr_IMU();
 
 
 #endif /* IMU_HPP_ */

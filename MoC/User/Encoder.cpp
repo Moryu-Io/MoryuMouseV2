@@ -8,23 +8,27 @@
 #include "Encoder.hpp"
 
 
-Encoder::Encoder(uint32_t* _u32p_enccntmax, uint32_t* _u32p_enccnt, float _cnt2pos):
-u32p_ENC_CNT_MAX_(_u32p_enccntmax), u32p_enc_CNT_(_u32p_enccnt),
-u32_prev_enc_CNT_(0), coef_conv_CNTtoPos_(_cnt2pos)
+Encoder::Encoder(TIM_TypeDef *_tim, float _cnt2pos):
+TIMx_(_tim), coef_conv_CNTtoPos_(_cnt2pos)
 {
-
+	set_periph(_tim);
 }
 
 
-void Encoder::set_periph(uint32_t* _u32p_enccntmax, uint32_t* _u32p_enccnt){
-	u32p_ENC_CNT_MAX_ 	= _u32p_enccntmax;
-	u32p_enc_CNT_		= _u32p_enccnt;
+void Encoder::set_periph(TIM_TypeDef *_tim){
+	TIMx_ = _tim;
+	u32p_ENC_CNT_MAX_ 	= (uint32_t*)&(TIMx_->ARR);
+	u32p_enc_CNT_		= (uint32_t*)&(TIMx_->CNT);
 	u32_prev_enc_CNT_	= 0;
 
+	enable();
 }
 
+void Encoder::enable(){
+	LL_TIM_EnableCounter(TIMx_);
+}
 
-int32_t Encoder::get_dCNT(){
+int32_t Encoder::update(){
 	int32_t _dCNT = *u32p_enc_CNT_ - u32_prev_enc_CNT_;
 	u32_prev_enc_CNT_ = *u32p_enc_CNT_;
 
@@ -34,11 +38,8 @@ int32_t Encoder::get_dCNT(){
 		_dCNT = _dCNT + *u32p_ENC_CNT_MAX_;
 	}
 
+	u32_now_dCNT_ = _dCNT;
+
 	return _dCNT;
-
 }
 
-
-float Encoder::get_dpos(){
-	return (float)get_dCNT()*coef_conv_CNTtoPos_;
-}

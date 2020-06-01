@@ -13,38 +13,55 @@ const float LSBtoACCEL 	= 1.0f/8192.0f*9806.0f;			// LSB �� mm/s^2
 const float LSBtoTEMP 	= 1.0f/333.87f;					// LSB �� deg
 
 void IMU::getIMUdata(IMUdata* _imudata){
-	uint8_t _u8_accel[4] = {};
-	uint8_t _u8_gyrotemp[4] = {};
-	ReadBytes(0x2D, _u8_accel, 4);
-	ReadBytes(0x37, _u8_gyrotemp,4);
-	int16_t _s16_hoge = (int16_t)(((uint16_t)_u8_accel[0]<<8) | (uint16_t) _u8_accel[1]);
-	_imudata->accel_x = (float)_s16_hoge * LSBtoACCEL;
+	int16_t _s16_hoge = (int16_t)(((uint16_t)rxbuffer_[1]<<8) | (uint16_t) rxbuffer_[2]);
+	_imudata->accel_x = -(float)_s16_hoge * LSBtoACCEL;
 
-	_s16_hoge = (int16_t)(((uint16_t)_u8_accel[2]<<8) | (uint16_t) _u8_accel[3]);
-	_imudata->accel_y = (float)_s16_hoge * LSBtoACCEL;
+	_s16_hoge = (int16_t)(((uint16_t)rxbuffer_[3]<<8) | (uint16_t) rxbuffer_[4]);
+	_imudata->accel_y = -(float)_s16_hoge * LSBtoACCEL;
 
-	_s16_hoge = (int16_t)(((uint16_t)_u8_gyrotemp[0]<<8) | (uint16_t) _u8_gyrotemp[1]);
+	_s16_hoge = (int16_t)(((uint16_t)rxbuffer_[11]<<8) | (uint16_t) rxbuffer_[12]);
 	_imudata->gyro_z = (float)_s16_hoge * LSBtoGYRO;
 
-	_s16_hoge = (int16_t)(((uint16_t)_u8_gyrotemp[2]<<8) | (uint16_t) _u8_gyrotemp[3]);
+	_s16_hoge = (int16_t)(((uint16_t)rxbuffer_[13]<<8) | (uint16_t) rxbuffer_[14]);
 	_imudata->temp = (float)(_s16_hoge - 21) * LSBtoTEMP + 21.0f;
+
+	is_IMUdata_Updated = false;
 }
 
-void IMU::routine_config(){
+void IMU::routine_config_for_get_IMUdata(){
+	is_rxDMA_completed = false;
+	is_txDMA_completed = false;
+	is_IMUdata_Updated = false;
+	is_IMUdata_Routine = true;
+
+	txbuffer_[0] = 0b10000000 | 0x2D;
+	for(int i=1;i<15;i++){
+		txbuffer_[i] = 0xFF;
+	}
 	// 受信DMAの設定
 	LL_DMA_ConfigAddresses(DMAx_, rx_DMA_CH_,
 						   LL_SPI_DMA_GetRegAddr(SPIx_),(uint32_t)(this->rxbuffer_),
 						   LL_DMA_GetDataTransferDirection(DMAx_, rx_DMA_CH_));
-	LL_DMA_SetDataLength(DMAx_, rx_DMA_CH_, 14);
+	LL_DMA_SetDataLength(DMAx_, rx_DMA_CH_, 15);
 
 	// 送信DMAの設定
 	LL_DMA_ConfigAddresses(DMAx_, tx_DMA_CH_, 
 						   (uint32_t)(this->txbuffer_),LL_SPI_DMA_GetRegAddr(SPIx_),
                            LL_DMA_GetDataTransferDirection(DMAx_, tx_DMA_CH_));
-	LL_DMA_SetDataLength(DMAx_, tx_DMA_CH_, 14);
+	LL_DMA_SetDataLength(DMAx_, tx_DMA_CH_, 15);
 
-	
 
+	this->select();
+
+	// DMA RX リクエストを有効化
+	LL_SPI_EnableDMAReq_RX(SPIx_);
+
+	// DMAを有効化
+	LL_DMA_EnableChannel(DMAx_, tx_DMA_CH_);
+	LL_DMA_EnableChannel(DMAx_, rx_DMA_CH_);
+
+	// DMA TX リクエストを有効化
+	LL_SPI_EnableDMAReq_TX(SPIx_);
 
 }
 
@@ -63,22 +80,30 @@ void IMU::init_config(){
 	this->dma_config();
 
 	WriteByte(0x03, 0b00010000);
+	LL_mDelay(10);
 	//osDelay(10);
 	WriteByte(0x06, 0b00000001);
+	LL_mDelay(10);
 	//osDelay(10);
 	WriteByte(0x05, 0b00000000);
+	LL_mDelay(10);
 	//osDelay(10);
 
 	ChangeBank(2);
+	LL_mDelay(10);
 	//osDelay(10);
 	WriteByte(0x01, 0b00000111);	// ジャイロ2000dps, DLPF on
+	LL_mDelay(10);
 	//osDelay(10);
 	WriteByte(0x14, 0b00000011);	// 加速度4g, DLPF on
+	LL_mDelay(10);
 	//osDelay(10);
 	WriteByte(0x53, 0b00000101);	// temp config, DLPF on
+	LL_mDelay(10);
 	//osDelay(10);
 	
 	ChangeBank(0);
+	LL_mDelay(10);
 }
 
 void IMU::ChangeBank(uint8_t _banknumber){
@@ -119,9 +144,12 @@ void IMU::ReadBytes(uint8_t _startindex, uint8_t* _rdata, int _readnum){
 }
 
 uint8_t IMU::spiSendByte(uint8_t _data){
+	is_IMUdata_Routine = false;
 	//while(LL_DMA_IsActiveFlag_TC2(DMAx_));
 	this->txbuffer_[0] = _data;
 
+	is_rxDMA_completed = false;
+	is_txDMA_completed = false;
 	LL_DMA_SetDataLength(DMAx_, rx_DMA_CH_, 1);
 	LL_DMA_SetDataLength(DMAx_, tx_DMA_CH_, 1);
 
@@ -135,17 +163,8 @@ uint8_t IMU::spiSendByte(uint8_t _data){
 	// DMA TX リクエストを有効化
 	LL_SPI_EnableDMAReq_TX(SPIx_);
 
-	while(!this->is_tx_dma_TC());
-	while(!this->is_rx_dma_TC());
-
-	// DMAを無効化
-	LL_DMA_DisableChannel(DMAx_, tx_DMA_CH_);
-	LL_DMA_DisableChannel(DMAx_, rx_DMA_CH_);
-	LL_SPI_DisableDMAReq_RX(SPIx_);
-	LL_SPI_DisableDMAReq_TX(SPIx_);
-
-	clear_SPI3_RX_DMA_TC();
-	clear_SPI3_TX_DMA_TC();
+	while(!this->is_txDMA_completed);
+	while(!this->is_rxDMA_completed);
 
 	return this->rxbuffer_[0];
 }
@@ -188,9 +207,22 @@ void IMU::dma_config(){
 }
 
 
-bool IMU::is_rx_dma_TC(){
-	return is_SPI3_RX_DMA_TC();
+void IMU::rx_dma_TC(){
+	if(is_IMUdata_Routine)	this->deselect();
+	LL_DMA_DisableChannel(DMAx_, tx_DMA_CH_);
+	LL_DMA_DisableChannel(DMAx_, rx_DMA_CH_);
+	LL_SPI_DisableDMAReq_RX(SPIx_);
+	LL_SPI_DisableDMAReq_TX(SPIx_);
+
+	is_rxDMA_completed = true;
+	is_IMUdata_Updated = true;
+	is_IMUdata_Routine = false;
 }
-bool IMU::is_tx_dma_TC(){
-	return is_SPI3_TX_DMA_TC();
+void IMU::tx_dma_TC(){
+	is_txDMA_completed = true;
 }
+
+
+
+static IMU imu(SPI3, GPIOF, LL_GPIO_PIN_1, DMA1, LL_DMA_CHANNEL_1, LL_DMA_CHANNEL_2);
+IMU* get_ptr_IMU(){return &imu;};

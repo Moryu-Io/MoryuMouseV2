@@ -8,8 +8,7 @@ extern "C" {
 
 #include "stm32g4xx.h"
 
-void cpp_wrapper_main_setup(void);
-void cpp_wrapper_main_loop(void);
+void cpp_wrapper_rtos_initialize(void);
 
 #ifdef __cplusplus
 }

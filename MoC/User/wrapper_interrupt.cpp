@@ -1,29 +1,17 @@
 #include "wrapper_interrupt.hpp"
 #include "OpenMemoryMap.hpp"
 #include "MMT.hpp"
+#include "IMU.hpp"
+#include "tim_counter.hpp"
+#include "Machine.hpp"
 
-uint8_t SPI3_DMA_CPLT_FLAG = 0;
-#define SPI3_RX_DMA_CPLT_MSK (0b00000001)
-#define SPI3_TX_DMA_CPLT_MSK (0b00000010)
+void SPI3_RX_DMA_TC(){
+    get_ptr_IMU()->rx_dma_TC();
+}
+void SPI3_TX_DMA_TC(){
+    get_ptr_IMU()->tx_dma_TC();
+}
 
-void set_SPI3_RX_DMA_TC(){
-    SPI3_DMA_CPLT_FLAG |= SPI3_RX_DMA_CPLT_MSK;
-}
-void set_SPI3_TX_DMA_TC(){
-    SPI3_DMA_CPLT_FLAG |= SPI3_TX_DMA_CPLT_MSK;
-}
-void clear_SPI3_TX_DMA_TC(){
-    CLEAR_BIT(SPI3_DMA_CPLT_FLAG, SPI3_TX_DMA_CPLT_MSK);
-}
-void clear_SPI3_RX_DMA_TC(){
-    CLEAR_BIT(SPI3_DMA_CPLT_FLAG, SPI3_RX_DMA_CPLT_MSK);
-}
-uint8_t is_SPI3_RX_DMA_TC(){
-    return ((SPI3_DMA_CPLT_FLAG & SPI3_RX_DMA_CPLT_MSK)==SPI3_RX_DMA_CPLT_MSK);
-}
-uint8_t is_SPI3_TX_DMA_TC(){
-    return ((SPI3_DMA_CPLT_FLAG & SPI3_TX_DMA_CPLT_MSK)==SPI3_TX_DMA_CPLT_MSK);
-}
 
 
 void SPI1_RX_DMA_TC(){
@@ -37,4 +25,13 @@ void SPI1_TX_DMA_TC(){
 void SPI1_ERROR_ITR(){
     MMT_S &mmt = MMT_S::getInstance();
     mmt.error_handler();
+}
+
+void TIM7_ITR(){
+    static Machine &MoryuMouse = Machine::getInstance();
+    MoryuMouse.control_routine();
+}
+
+void TIM17_ITR(){
+    T_CNT::tim17_update_event();
 }

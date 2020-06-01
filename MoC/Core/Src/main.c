@@ -117,6 +117,7 @@ int main(void)
   MX_CORDIC_Init();
   MX_TIM7_Init();
   MX_TIM15_Init();
+  MX_TIM17_Init();
   /* USER CODE BEGIN 2 */
   cpp_wrapper_main_setup();
   

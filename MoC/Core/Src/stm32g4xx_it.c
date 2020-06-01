@@ -207,7 +207,7 @@ void DMA1_Channel1_IRQHandler(void)
   if (LL_DMA_IsActiveFlag_TC1(DMA1))
   {
     LL_DMA_ClearFlag_GI1(DMA1);
-    set_SPI3_RX_DMA_TC();
+    SPI3_RX_DMA_TC();
   }
   /* USER CODE END DMA1_Channel1_IRQn 0 */
   
@@ -225,13 +225,30 @@ void DMA1_Channel2_IRQHandler(void)
   if (LL_DMA_IsActiveFlag_TC2(DMA1))
   {
     LL_DMA_ClearFlag_GI2(DMA1);
-    set_SPI3_TX_DMA_TC();
+    SPI3_TX_DMA_TC();
   }
   /* USER CODE END DMA1_Channel2_IRQn 0 */
   
   /* USER CODE BEGIN DMA1_Channel2_IRQn 1 */
 
   /* USER CODE END DMA1_Channel2_IRQn 1 */
+}
+
+/**
+  * @brief This function handles TIM1 trigger and commutation interrupts and TIM17 global interrupt.
+  */
+void TIM1_TRG_COM_TIM17_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM1_TRG_COM_TIM17_IRQn 0 */
+  if(LL_TIM_IsActiveFlag_UPDATE(TIM17)){
+    LL_TIM_ClearFlag_UPDATE(TIM17);
+    TIM17_ITR();
+  }
+  /* USER CODE END TIM1_TRG_COM_TIM17_IRQn 0 */
+  
+  /* USER CODE BEGIN TIM1_TRG_COM_TIM17_IRQn 1 */
+
+  /* USER CODE END TIM1_TRG_COM_TIM17_IRQn 1 */
 }
 
 /**
@@ -260,7 +277,10 @@ void SPI1_IRQHandler(void)
 void TIM7_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM7_IRQn 0 */
-
+  if(LL_TIM_IsActiveFlag_UPDATE(TIM7)){
+    LL_TIM_ClearFlag_UPDATE(TIM7);
+    TIM7_ITR();
+  }
   /* USER CODE END TIM7_IRQn 0 */
   /* USER CODE BEGIN TIM7_IRQn 1 */
 

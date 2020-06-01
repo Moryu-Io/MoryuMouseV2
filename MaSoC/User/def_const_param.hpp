@@ -4,6 +4,19 @@
 
 #define MASOC_MICON
 
+/* RTOS関連 */
+#define MCTaskStackSize  (512)
+#define WSTaskStackSize  (256)
+#define MSTaskStackSize  (1024)
+#define UICTaskStackSize (128)
+
+#define MCTaskPriority  (3)
+#define WSTaskPriority  (2)
+#define MSTaskPriority  (1)
+#define UICTaskPriority (0)
+
+
+/* MMT関連 */
 #define MMT_MASTER_WHO_AM_I (0x69A9)
 #define MMT_SLAVE_WHO_AM_I (0x69BA)
 

@@ -5,8 +5,15 @@
 static MoC_OpenMemory moc_memory = {
     .memory0 = {
         .header = MMT_MOC_HEADER,
-        .isThisMemoryLocked = 0,
-        .dummy0 = {},
+        .u16_nowMode0 = 0,
+        .u16_nowMode1 = 0,
+        .u8_dummy00 = {},
+        .flt_nowPos_X = 0.0f,
+        .flt_nowPos_Y = 0.0f,
+        .flt_nowPos_Z = 0.0f,
+        .u16_rEncCNT = 0,
+        .u16_lEncCNT = 0,
+        .u8_dummy01 = {},
         .footer = MMT_MOC_FOOTER
     }
 };
@@ -14,14 +21,24 @@ static MoC_OpenMemory moc_memory = {
 static MaSoC_OpenMemory masoc_memory = {
     .memory0 = {
         .header = MMT_MASOC_HEADER,
-        .isThisMemoryLocked = 0x96,
-        .dummy0 = {},
+        .u16_nowMode0 = 0,
+        .u16_nowMode1 = 0,
+        .u8_dummy00 = {},
+        .flt_WallDistance_Right = 0.0f,
+        .flt_WallDistance_Left = 0.0f,
+        .flt_WallDistance_Front = 0.0f,
+        .u8_dummy01 = {},
         .footer = MMT_MASOC_FOOTER
     },
     .memory1 = {
         .header = MMT_MASOC_HEADER,
-        .isThisMemoryLocked = 0x96,
-        .dummy0 = {},
+        .u16_nowMode0 = 0,
+        .u16_nowMode1 = 0,
+        .u8_dummy00 = {},
+        .flt_WallDistance_Right = 0.0f,
+        .flt_WallDistance_Left = 0.0f,
+        .flt_WallDistance_Front = 0.0f,
+        .u8_dummy01 = {},
         .footer = MMT_MASOC_FOOTER
     }
 };
@@ -29,14 +46,28 @@ static MaSoC_OpenMemory masoc_memory = {
 static MoC_OpenMemory moc_memory = {
     .memory0 = {
         .header = MMT_MOC_HEADER,
-        .isThisMemoryLocked = 0,
-        .dummy0 = {},
+        .u16_nowMode0 = 0,
+        .u16_nowMode1 = 0,
+        .u8_dummy00 = {},
+        .flt_nowPos_X = 0.0f,
+        .flt_nowPos_Y = 0.0f,
+        .flt_nowPos_Z = 0.0f,
+        .u16_rEncCNT = 0,
+        .u16_lEncCNT = 0,
+        .u8_dummy01 = {},
         .footer = MMT_MOC_FOOTER
     },
     .memory1 = {
         .header = MMT_MOC_HEADER,
-        .isThisMemoryLocked = 0x96,
-        .dummy0 = {},
+        .u16_nowMode0 = 0,
+        .u16_nowMode1 = 0,
+        .u8_dummy00 = {},
+        .flt_nowPos_X = 0.0f,
+        .flt_nowPos_Y = 0.0f,
+        .flt_nowPos_Z = 0.0f,
+        .u16_rEncCNT = 0,
+        .u16_lEncCNT = 0,
+        .u8_dummy01 = {},
         .footer = MMT_MOC_FOOTER
     }
 };
@@ -44,8 +75,13 @@ static MoC_OpenMemory moc_memory = {
 static MaSoC_OpenMemory masoc_memory = {
     .memory0 = {
         .header = MMT_MASOC_HEADER,
-        .isThisMemoryLocked = 0x96,
-        .dummy0 = {},
+        .u16_nowMode0 = 0,
+        .u16_nowMode1 = 0,
+        .u8_dummy00 = {},
+        .flt_WallDistance_Right = 0.0f,
+        .flt_WallDistance_Left = 0.0f,
+        .flt_WallDistance_Front = 0.0f,
+        .u8_dummy01 = {},
         .footer = MMT_MASOC_FOOTER
     }
 };

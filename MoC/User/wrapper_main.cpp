@@ -4,50 +4,47 @@
 #include "MMT.hpp"
 #include "Encoder.hpp"
 #include "Motor.hpp"
+#include "Controller.hpp"
+#include "Machine.hpp"
 #include "ADCC.hpp"
+#include "tim_counter.hpp"
+#define ARM_MATH_CM4
+#include "arm_math.h"
 
 static Motor RightMotor((uint32_t*)(&(TIM1->ARR)), (uint32_t*)(&(TIM1->CCER)),
 						LL_TIM_CHANNEL_CH1 | LL_TIM_CHANNEL_CH2,
-						(uint32_t*)(&(TIM1->CCR1)), (uint32_t*)(&(TIM1->CCR2)));
+						(uint32_t*)(&(TIM1->CCR2)), (uint32_t*)(&(TIM1->CCR1)));
 
 static Motor LeftMotor((uint32_t*)(&(TIM1->ARR)), (uint32_t*)(&(TIM1->CCER)),
 					   LL_TIM_CHANNEL_CH3 | LL_TIM_CHANNEL_CH4,
-					   (uint32_t*)(&(TIM1->CCR3)), (uint32_t*)(&(TIM1->CCR4)));
+					   (uint32_t*)(&(TIM1->CCR4)), (uint32_t*)(&(TIM1->CCR3)));
 
-static Encoder RightEncoder((uint32_t*)(&(TIM8->ARR)), (uint32_t*)(&(TIM8->CNT)), 1.0f);
-static Encoder LeftEncoder((uint32_t*)(&(TIM2->ARR)), (uint32_t*)(&(TIM2->CNT)), 1.0f);
+static Encoder RightEncoder(TIM8, 2.0f*PI*MOTOR_REDUCTION_RATIO*RIGHT_WHEEL_DIAMETER_mm);
+static Encoder LeftEncoder(TIM2, 2.0f*PI*MOTOR_REDUCTION_RATIO*LEFT_WHEEL_DIAMETER_mm);
 
+static PID RotationController(CONTROLL_FREQ, 0.2f, 0.3f, 0.0f, 0.3f);
 uint16_t adc1_data = 0;
 uint16_t adc2_data = 0;
 
 void cpp_wrapper_main_setup(void){
-    LL_mDelay(100);
-    LL_GPIO_ResetOutputPin(GPIOG, LL_GPIO_PIN_10);
-    LL_GPIO_SetOutputPin(GPIOG, LL_GPIO_PIN_10);
-    LL_mDelay(100);
+    static Machine &MoryuMouse = Machine::getInstance();
 
-    IMU imu(SPI3, GPIOG, LL_GPIO_PIN_10, DMA1, LL_DMA_CHANNEL_1, LL_DMA_CHANNEL_2);
-    imu.init_config();
     LL_mDelay(100);
-    //imu.getwhoamI();
+    LL_GPIO_ResetOutputPin(GPIOF, LL_GPIO_PIN_1);
+    LL_GPIO_SetOutputPin(GPIOF, LL_GPIO_PIN_1);
+    LL_mDelay(100);
 
     static MMT_S &mmt = MMT_S::getInstance();
     mmt.set_periph(SPI1, GPIOA, LL_GPIO_PIN_4,
                    DMA2, LL_DMA_CHANNEL_1, LL_DMA_CHANNEL_2);
     mmt.init(MMT_S::Single);
-    
-	LL_TIM_EnableCounter(TIM2);
-	LL_TIM_EnableCounter(TIM8);
-        
-    LL_TIM_EnableUpdateEvent(TIM1);
-	LL_TIM_EnableCounter(TIM1);
-    TIM1->BDTR |= TIM_BDTR_MOE;	
-    RightMotor.enable_Motor();
-    LeftMotor.enable_Motor();
-    //RightMotor.set_duty(-0.1f);
-    //LeftMotor.set_duty(0.1f);
-    LL_mDelay(1000);
+ 
+    MoryuMouse.init(TIM7, &RightMotor, &LeftMotor, &RightEncoder, &LeftEncoder, &RotationController, get_ptr_IMU());
 
+    LL_mDelay(100);
+    MoryuMouse.enable();
+
+    //T_CNT::tim17_cnt_enable();
 }
 
 void cpp_wrapper_main_loop(void){
@@ -57,13 +54,14 @@ void cpp_wrapper_main_loop(void){
     
     counter++;
     static MMT_S &mmt = MMT_S::getInstance();
-    LL_mDelay(1000);
+    LL_mDelay(10);
     r_enc = RightEncoder.get_nowCNT();
     l_enc = LeftEncoder.get_nowCNT();
-    ADC_TypeDef* _adc = ADC1;
+
+
+    get_ptr_MoC_OpenMemory()->ptr_now_oMem->u16_rEncCNT = r_enc;
+    get_ptr_MoC_OpenMemory()->ptr_now_oMem->u16_lEncCNT = l_enc;
     
-    get_ptr_MoC_OpenMemory()->ptr_now_oMem->isThisMemoryLocked = counter;
     //mmt.set_single_TXdata(counter);
-    
 }
 
