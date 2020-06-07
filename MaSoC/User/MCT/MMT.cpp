@@ -2,6 +2,7 @@
 #include "MMT.hpp"
 
 
+namespace MCT{
 
 void MMT_M::set_periph(SPI_TypeDef *_spix, GPIO_TypeDef* _csGPIO, uint32_t _csPinmsk,
 					DMA_TypeDef *_dmax, uint32_t _rx_dma_ch, uint32_t _tx_dma_ch){
@@ -108,6 +109,9 @@ void MMT_M::rx_cplt_routine(){
 	case OpenMemory:
 		if((ptr_moc_OpenMemory_->ptr_now_oMem->header == MMT_MOC_HEADER) 
 			&&(ptr_moc_OpenMemory_->ptr_now_oMem->footer == MMT_MOC_FOOTER)){
+			// 通信カウントをインクリメント
+			(ptr_masoc_OpenMemory_->memory0.u32_nowMMT_CNT)++;			
+			
 			// 二面バッファ切り替え
 			if(ptr_moc_OpenMemory_->ptr_now_oMem == &(ptr_moc_OpenMemory_->memory0)){
 				ptr_moc_OpenMemory_->set_oMem_to_memory1();
@@ -155,3 +159,6 @@ void MMT_M::select(){
 void MMT_M::deselect(){
 	LL_GPIO_SetOutputPin(csGPIOx_, csPinmsk_);
 }
+
+
+};

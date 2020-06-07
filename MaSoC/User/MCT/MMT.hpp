@@ -6,6 +6,7 @@
 #include "OpenMemoryMap.hpp"
 #include "def_const_param.hpp"
 
+namespace MCT{
 
 class MMT_M{
 public:
@@ -57,5 +58,6 @@ private:
 
 };
 
+};
 
 #endif

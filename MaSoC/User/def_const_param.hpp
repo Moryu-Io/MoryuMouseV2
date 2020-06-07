@@ -8,12 +8,17 @@
 #define MCTaskStackSize  (512)
 #define WSTaskStackSize  (256)
 #define MSTaskStackSize  (1024)
-#define UICTaskStackSize (128)
+#define AMTaskStackSize (128)
 
 #define MCTaskPriority  (3)
 #define WSTaskPriority  (2)
 #define MSTaskPriority  (1)
-#define UICTaskPriority (0)
+#define AMTaskPriority  (0)
+
+#define MCTaskPeriod_ms (1)
+#define WSTaskPeriod_ms (1)
+#define MSTaskPeriod_ms (10)
+#define AMTaskPeriod_ms (10)
 
 
 /* MMT関連 */

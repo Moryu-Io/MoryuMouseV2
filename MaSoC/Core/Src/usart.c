@@ -84,7 +84,15 @@ void MX_USART3_UART_Init(void)
 }
 
 /* USER CODE BEGIN 1 */
-
+#ifdef __GNUC__
+#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
+#else
+#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
+#endif /* __GNUC__ */
+void __io_putchar(uint8_t ch) {
+  while (LL_USART_IsActiveFlag_TXE(USART3) == 0);
+  LL_USART_TransmitData8(USART3, ch);
+}
 /* USER CODE END 1 */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

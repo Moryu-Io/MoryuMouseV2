@@ -62,6 +62,7 @@ Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_usart.c \
 Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_rcc.c \
 Core/Src/system_stm32g4xx.c \
 Core/Src/fmac.c \
+Core/Src/syscalls.c \
 Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_fmac.c \
 $(wildcard FreeRTOS/*.c) \
 $(wildcard FreeRTOS/portable/GCC/ARM_CM4F/*.c) \
@@ -71,6 +72,10 @@ $(wildcard FreeRTOS/portable/MemMang/*.c)
 
 CPP_SOURCES = \
 $(wildcard User/*.cpp) \
+$(wildcard User/AMT/*.cpp) \
+$(wildcard User/MCT/*.cpp) \
+$(wildcard User/MST/*.cpp) \
+$(wildcard User/WST/*.cpp) \
 $(wildcard ../OpenMemory/*.cpp)
 
 # ASM sources
@@ -151,7 +156,11 @@ C_INCLUDES =  \
 -IFreeRTOS/include \
 -IFreeRTOS/user \
 -I../OpenMemory \
--IUser
+-IUser \
+-IUser/AMT \
+-IUser/MCT \
+-IUser/MST \
+-IUser/WST
 
 # C++ includes
 CPP_INCLUDES = $(C_INCLUDES)
