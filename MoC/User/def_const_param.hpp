@@ -11,7 +11,11 @@
 #define MACHINE_TREAD_mm        (18.0f)
 #define MOTOR_REDUCTION_RATIO   (40.0f/13.0f)
 
-#define CONTROLL_FREQ   (10000.0f)
+#define CONTROLL_FREQ   (2500.0f)
+#define CONTROLL_TIME   (0.0004f)
+
+
+
 
 /* MMT関連 */
 #define MMT_MASTER_WHO_AM_I (0x69A9)

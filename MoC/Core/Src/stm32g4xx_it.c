@@ -275,7 +275,8 @@ void SPI1_IRQHandler(void)
   * @brief This function handles TIM7 global interrupt.
   */
 void TIM7_IRQHandler(void)
-{
+{    
+
   /* USER CODE BEGIN TIM7_IRQn 0 */
   if(LL_TIM_IsActiveFlag_UPDATE(TIM7)){
     LL_TIM_ClearFlag_UPDATE(TIM7);

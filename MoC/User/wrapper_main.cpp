@@ -8,8 +8,7 @@
 #include "Machine.hpp"
 #include "ADCC.hpp"
 #include "tim_counter.hpp"
-#define ARM_MATH_CM4
-#include "arm_math.h"
+#include "mymath.hpp"
 
 static Motor RightMotor((uint32_t*)(&(TIM1->ARR)), (uint32_t*)(&(TIM1->CCER)),
 						LL_TIM_CHANNEL_CH1 | LL_TIM_CHANNEL_CH2,
@@ -19,8 +18,8 @@ static Motor LeftMotor((uint32_t*)(&(TIM1->ARR)), (uint32_t*)(&(TIM1->CCER)),
 					   LL_TIM_CHANNEL_CH3 | LL_TIM_CHANNEL_CH4,
 					   (uint32_t*)(&(TIM1->CCR4)), (uint32_t*)(&(TIM1->CCR3)));
 
-static Encoder RightEncoder(TIM8, 2.0f*PI*MOTOR_REDUCTION_RATIO*RIGHT_WHEEL_DIAMETER_mm);
-static Encoder LeftEncoder(TIM2, 2.0f*PI*MOTOR_REDUCTION_RATIO*LEFT_WHEEL_DIAMETER_mm);
+static Encoder RightEncoder(TIM8, PI/MOTOR_REDUCTION_RATIO/200.0f*RIGHT_WHEEL_DIAMETER_mm);
+static Encoder LeftEncoder(TIM2, PI/MOTOR_REDUCTION_RATIO/200.0f*LEFT_WHEEL_DIAMETER_mm);
 
 static PID RotationController(CONTROLL_FREQ, 0.2f, 0.3f, 0.0f, 0.3f);
 uint16_t adc1_data = 0;
@@ -40,11 +39,11 @@ void cpp_wrapper_main_setup(void){
     mmt.init(MMT_S::Single);
  
     MoryuMouse.init(TIM7, &RightMotor, &LeftMotor, &RightEncoder, &LeftEncoder, &RotationController, get_ptr_IMU());
+    T_CNT::tim17_cnt_enable();
 
     LL_mDelay(100);
     MoryuMouse.enable();
 
-    //T_CNT::tim17_cnt_enable();
 }
 
 void cpp_wrapper_main_loop(void){
@@ -55,13 +54,8 @@ void cpp_wrapper_main_loop(void){
     counter++;
     static MMT_S &mmt = MMT_S::getInstance();
     LL_mDelay(10);
-    r_enc = RightEncoder.get_nowCNT();
-    l_enc = LeftEncoder.get_nowCNT();
-
-
-    get_ptr_MoC_OpenMemory()->ptr_now_oMem->u16_rEncCNT = r_enc;
-    get_ptr_MoC_OpenMemory()->ptr_now_oMem->u16_lEncCNT = l_enc;
-    
+    TIM_TypeDef* _tim = TIM7;
+    LL_mDelay(10);
     //mmt.set_single_TXdata(counter);
 }
 

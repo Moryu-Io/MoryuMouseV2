@@ -99,6 +99,9 @@ void MMT_S::rx_cplt_routine(){
 	case OpenMemory:
 		if((ptr_masoc_OpenMemory_->ptr_now_oMem->header == MMT_MASOC_HEADER) 
 			&&(ptr_masoc_OpenMemory_->ptr_now_oMem->footer == MMT_MASOC_FOOTER)){
+			// 通信カウントをインクリメント
+			(ptr_moc_OpenMemory_->memory0.u32_nowMMT_CNT)++;
+
 			// 二面バッファ切り替え
 			if(ptr_masoc_OpenMemory_->ptr_now_oMem == &(ptr_masoc_OpenMemory_->memory0)){
 				ptr_masoc_OpenMemory_->set_oMem_to_memory1();

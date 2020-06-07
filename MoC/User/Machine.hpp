@@ -53,8 +53,13 @@ private:
     MC_Mode nowMode_ = Standby;
     IMUdata imudata_;
     Position nowPos_;
+    Position nowVel_;
+    Position preVel_;
     float ctrl_freq_ = CONTROLL_FREQ;
-    float ctrl_dt_   = 1.0f/CONTROLL_FREQ;
+    float ctrl_dt_   = CONTROLL_TIME;
+
+
+    void set_OpenMemData();
 };
 
 

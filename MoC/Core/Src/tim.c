@@ -237,7 +237,7 @@ void MX_TIM7_Init(void)
   NVIC_SetPriority(TIM7_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),8, 0));
   NVIC_EnableIRQ(TIM7_IRQn);
 
-  TIM_InitStruct.Prescaler = 169;
+  TIM_InitStruct.Prescaler = 679;
   TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
   TIM_InitStruct.Autoreload = 99;
   LL_TIM_Init(TIM7, &TIM_InitStruct);
@@ -331,7 +331,7 @@ void MX_TIM17_Init(void)
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM17);
 
   /* TIM17 interrupt Init */
-  NVIC_SetPriority(TIM1_TRG_COM_TIM17_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),7, 0));
+  NVIC_SetPriority(TIM1_TRG_COM_TIM17_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),1, 0));
   NVIC_EnableIRQ(TIM1_TRG_COM_TIM17_IRQn);
 
   TIM_InitStruct.Prescaler = 169;
